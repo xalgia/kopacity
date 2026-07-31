@@ -1,0 +1,22 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "",
+                "Name": "Xalgia"
+            }
+        ],
+        "BugReportUrl": "https://github.com/xalgia/kopacity/issues",
+        "Category": "Windows and Tasks",
+        "Description": "Control the transparency of KWin windows from a Plasma panel or desktop.",
+        "EnabledByDefault": false,
+        "Icon": "edit-opacity",
+        "Id": "io.github.xalgia.kopacity",
+        "License": "MIT",
+        "Name": "KOpacity",
+        "Version": "0.1.0",
+        "Website": "https://github.com/xalgia/kopacity"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0"
+}

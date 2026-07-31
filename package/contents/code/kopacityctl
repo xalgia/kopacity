@@ -1,0 +1,363 @@
+#!/bin/sh
+set -eu
+
+backend_id="io.github.xalgia.kopacity.backend"
+script_group="Script-$backend_id"
+minimum_opacity=50
+maximum_opacity=100
+default_opacity=75
+step_size=5
+lock_timeout=3
+dbus_timeout=5
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+script_main=${KOPACITY_SCRIPT_MAIN:-"$script_dir/kwin/main.js"}
+config_file=${KOPACITY_CONFIG_FILE:-kwinrc}
+
+qdbus_command=${KOPACITY_QDBUS:-qdbus6}
+kread_command=${KOPACITY_KREADCONFIG:-kreadconfig6}
+kwrite_command=${KOPACITY_KWRITECONFIG:-kwriteconfig6}
+timeout_command=${KOPACITY_TIMEOUT:-timeout}
+flock_command=${KOPACITY_FLOCK:-flock}
+
+runtime_dir=${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}
+user_id=${UID:-user}
+lock_file="$runtime_dir/kopacity-$user_id.lock"
+
+if [ "${KOPACITYCTL_LOCKED:-0}" != "1" ] && command -v "$flock_command" >/dev/null 2>&1; then
+    exec "$flock_command" -w "$lock_timeout" "$lock_file" \
+        env KOPACITYCTL_LOCKED=1 "$0" "$@"
+fi
+
+die() {
+    printf '%s\n' "$*" >&2
+    exit 1
+}
+
+read_config() {
+    key=$1
+    default=$2
+    "$kread_command" \
+        --file "$config_file" \
+        --group "$script_group" \
+        --key "$key" \
+        --default "$default" 2>/dev/null \
+        || printf '%s\n' "$default"
+}
+
+write_config() {
+    key=$1
+    type=$2
+    value=$3
+    "$kwrite_command" \
+        --file "$config_file" \
+        --group "$script_group" \
+        --key "$key" \
+        --type "$type" \
+        "$value"
+}
+
+as_bool() {
+    case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
+        true|1|yes|on|enable|enabled)
+            printf 'true\n'
+            ;;
+        *)
+            printf 'false\n'
+            ;;
+    esac
+}
+
+read_bool() {
+    as_bool "$(read_config "$1" "$2")"
+}
+
+clamp_opacity() {
+    value=$1
+    case "$value" in
+        ''|*[!0-9]*)
+            die "Opacity must be a whole number from $minimum_opacity to $maximum_opacity."
+            ;;
+    esac
+
+    if [ "$value" -lt "$minimum_opacity" ]; then
+        value=$minimum_opacity
+    fi
+    if [ "$value" -gt "$maximum_opacity" ]; then
+        value=$maximum_opacity
+    fi
+    printf '%s\n' "$value"
+}
+
+configured_opacity() {
+    value=$(read_config Opacity "$default_opacity")
+    case "$value" in
+        ''|*[!0-9]*)
+            value=$default_opacity
+            ;;
+    esac
+    clamp_opacity "$value"
+}
+
+dbus_call() {
+    "$timeout_command" "$dbus_timeout" "$qdbus_command" "$@"
+}
+
+loaded_value() {
+    value=$(dbus_call \
+        org.kde.KWin \
+        /Scripting \
+        org.kde.kwin.Scripting.isScriptLoaded \
+        "$backend_id" 2>/dev/null) || return 1
+    as_bool "$value"
+}
+
+is_loaded() {
+    [ "$(loaded_value)" = "true" ]
+}
+
+backend_should_run() {
+    [ "$(read_bool Enabled false)" = "true" ] || return 1
+    [ "$(configured_opacity)" -lt "$maximum_opacity" ] || return 1
+
+    [ "$(read_bool IncludeNormalWindows true)" = "true" ] \
+        || [ "$(read_bool IncludeDialogs true)" = "true" ] \
+        || [ "$(read_bool IncludePanels false)" = "true" ]
+}
+
+require_runtime() {
+    if [ ! -f "$script_main" ]; then
+        printf 'KOpacity backend is missing: %s\n' "$script_main" >&2
+        return 1
+    fi
+
+    for command_name in \
+        "$qdbus_command" \
+        "$kread_command" \
+        "$kwrite_command" \
+        "$timeout_command"; do
+        if ! command -v "$command_name" >/dev/null 2>&1; then
+            printf 'Required command is unavailable: %s\n' "$command_name" >&2
+            return 1
+        fi
+    done
+
+    if ! loaded_value >/dev/null; then
+        printf '%s\n' "KWin's scripting service is unavailable." >&2
+        return 1
+    fi
+}
+
+unload_backend() {
+    dbus_call \
+        org.kde.KWin \
+        /Scripting \
+        org.kde.kwin.Scripting.unloadScript \
+        "$backend_id" >/dev/null 2>&1 || true
+}
+
+load_backend() {
+    dbus_call \
+        org.kde.KWin \
+        /Scripting \
+        org.kde.kwin.Scripting.loadScript \
+        "$script_main" \
+        "$backend_id" >/dev/null \
+        || return 1
+
+    dbus_call \
+        org.kde.KWin \
+        /Scripting \
+        org.kde.kwin.Scripting.start >/dev/null \
+        || return 1
+}
+
+reconcile_backend() {
+    require_runtime
+    unload_backend
+
+    load_backend || return 1
+
+    if backend_should_run; then
+        is_loaded || return 1
+    else
+        # A disabled one-shot run restores windows that still have our
+        # configured opacity, then immediately leaves KWin.
+        unload_backend
+    fi
+}
+
+snapshot_state() {
+    old_enabled=$(read_bool Enabled false)
+    old_opacity=$(configured_opacity)
+    old_normal=$(read_bool IncludeNormalWindows true)
+    old_dialogs=$(read_bool IncludeDialogs true)
+    old_panels=$(read_bool IncludePanels false)
+}
+
+restore_snapshot() {
+    write_config Enabled bool "$old_enabled"
+    write_config Opacity int "$old_opacity"
+    write_config IncludeNormalWindows bool "$old_normal"
+    write_config IncludeDialogs bool "$old_dialogs"
+    write_config IncludePanels bool "$old_panels"
+}
+
+commit_state() {
+    if reconcile_backend; then
+        status
+        return
+    fi
+
+    error_message="Could not apply the new KOpacity state."
+    restore_snapshot
+    reconcile_backend >/dev/null 2>&1 || true
+    die "$error_message The previous configuration was restored."
+}
+
+status() {
+    enabled=$(read_bool Enabled false)
+    opacity=$(configured_opacity)
+    normal=$(read_bool IncludeNormalWindows true)
+    dialogs=$(read_bool IncludeDialogs true)
+    panels=$(read_bool IncludePanels false)
+
+    if [ "$enabled" = "true" ] && [ "$opacity" -lt "$maximum_opacity" ]; then
+        effective=$opacity
+    else
+        effective=$maximum_opacity
+    fi
+
+    if loaded=$(loaded_value 2>/dev/null); then
+        available=true
+    else
+        available=false
+        loaded=false
+    fi
+
+    printf 'enabled=%s opacity=%s effective=%s normal=%s dialogs=%s panels=%s loaded=%s available=%s\n' \
+        "$enabled" \
+        "$opacity" \
+        "$effective" \
+        "$normal" \
+        "$dialogs" \
+        "$panels" \
+        "$loaded" \
+        "$available"
+}
+
+sync_backend() {
+    if backend_should_run; then
+        if is_loaded; then
+            status
+        else
+            reconcile_backend
+            status
+        fi
+        return
+    fi
+
+    if is_loaded; then
+        reconcile_backend
+    fi
+    status
+}
+
+set_scope() {
+    scope=$1
+    value=$(as_bool "$2")
+
+    case "$scope" in
+        normal|windows)
+            write_config IncludeNormalWindows bool "$value"
+            ;;
+        dialogs)
+            write_config IncludeDialogs bool "$value"
+            ;;
+        panels|docks)
+            write_config IncludePanels bool "$value"
+            ;;
+        *)
+            die "Unknown scope: $scope"
+            ;;
+    esac
+}
+
+command=${1:-status}
+
+case "$command" in
+    status)
+        status
+        ;;
+    sync)
+        sync_backend
+        ;;
+    set)
+        [ "$#" -ge 2 ] || die "Usage: kopacityctl set OPACITY"
+        requested=$(clamp_opacity "$(printf '%s' "$2" | tr -d '%')")
+        snapshot_state
+        if [ "$requested" -ge "$maximum_opacity" ]; then
+            write_config Enabled bool false
+        else
+            write_config Opacity int "$requested"
+            write_config Enabled bool true
+        fi
+        commit_state
+        ;;
+    on|enable)
+        snapshot_state
+        write_config Enabled bool true
+        commit_state
+        ;;
+    off|disable|reset)
+        snapshot_state
+        write_config Enabled bool false
+        commit_state
+        ;;
+    toggle)
+        snapshot_state
+        if [ "$old_enabled" = "true" ]; then
+            write_config Enabled bool false
+        else
+            write_config Enabled bool true
+        fi
+        commit_state
+        ;;
+    inc|up)
+        snapshot_state
+        if [ "$old_enabled" = "true" ]; then
+            requested=$((old_opacity + step_size))
+        else
+            requested=$maximum_opacity
+        fi
+        requested=$(clamp_opacity "$requested")
+        if [ "$requested" -ge "$maximum_opacity" ]; then
+            write_config Enabled bool false
+        else
+            write_config Opacity int "$requested"
+            write_config Enabled bool true
+        fi
+        commit_state
+        ;;
+    dec|down)
+        snapshot_state
+        if [ "$old_enabled" = "true" ]; then
+            requested=$((old_opacity - step_size))
+        else
+            requested=$((maximum_opacity - step_size))
+        fi
+        requested=$(clamp_opacity "$requested")
+        write_config Opacity int "$requested"
+        write_config Enabled bool true
+        commit_state
+        ;;
+    scope)
+        [ "$#" -ge 3 ] || die "Usage: kopacityctl scope normal|dialogs|panels on|off"
+        snapshot_state
+        set_scope "$2" "$3"
+        commit_state
+        ;;
+    *)
+        die "Usage: kopacityctl status|sync|set OPACITY|on|off|toggle|inc|dec|scope normal|dialogs|panels on|off"
+        ;;
+esac
