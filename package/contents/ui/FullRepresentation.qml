@@ -55,7 +55,6 @@ ColumnLayout {
                 i18n("Automatic"),
                 i18n("Icon"),
                 i18n("Percentage"),
-                i18n("Wide slider"),
                 i18n("Full controls")
             ]
             currentIndex: panel.controller.displayMode

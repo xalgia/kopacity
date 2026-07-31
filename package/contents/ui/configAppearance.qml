@@ -8,7 +8,7 @@ Kirigami.FormLayout {
     id: page
 
     property alias cfg_displayMode: displayMode.currentIndex
-    property alias cfg_sliderWidth: sliderWidth.value
+    property alias cfg_sliderWidth: controlWidth.value
     property int cfg_displayModeDefault: 0
     property int cfg_sliderWidthDefault: 240
     property var cfg_expanding
@@ -23,34 +23,32 @@ Kirigami.FormLayout {
             i18n("Automatic"),
             i18n("Icon"),
             i18n("Percentage"),
-            i18n("Wide slider"),
             i18n("Full controls")
         ]
     }
 
     SpinBox {
-        id: sliderWidth
+        id: controlWidth
 
-        Kirigami.FormData.label: i18n("Wide control width:")
+        Kirigami.FormData.label: i18n("Full-control width:")
         from: 160
         to: 480
         stepSize: 10
         editable: true
         enabled: displayMode.currentIndex === 0
             || displayMode.currentIndex === 3
-            || displayMode.currentIndex === 4
     }
 
     Label {
         Layout.fillWidth: true
         Kirigami.FormData.isSection: true
-        text: i18n("Automatic uses an icon in constrained layouts and expands when enough width is available, including in wide vertical panels.")
+        text: i18n("Automatic shows Full controls at 250 px or wider, Percentage at medium widths, and Icon in constrained layouts.")
         wrapMode: Text.Wrap
     }
 
     Label {
         Layout.fillWidth: true
-        text: i18n("The wide slider contains only a 50–100% slider. Open the widget settings from its context menu to change this appearance later.")
+        text: i18n("Full controls fall back to Percentage when the available width is too small.")
         wrapMode: Text.Wrap
     }
 }

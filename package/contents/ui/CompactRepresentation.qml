@@ -12,12 +12,8 @@ Item {
     readonly property int automaticMode: 0
     readonly property int iconMode: 1
     readonly property int percentageMode: 2
-    readonly property int sliderMode: 3
-    readonly property int controlsMode: 4
+    readonly property int controlsMode: 3
     readonly property int effectiveMode: {
-        if (controller.displayMode === sliderMode && width < Kirigami.Units.gridUnit * 5) {
-            return iconMode;
-        }
         if (controller.displayMode === controlsMode && width < Kirigami.Units.gridUnit * 10) {
             return percentageMode;
         }
@@ -43,13 +39,10 @@ Item {
         if (controller.displayMode === percentageMode) {
             return Kirigami.Units.gridUnit * 3.5;
         }
-        if (controller.displayMode === sliderMode) {
-            return controller.sliderWidth;
-        }
         if (controller.displayMode === controlsMode) {
-            return controller.sliderWidth + Kirigami.Units.gridUnit * 7;
+            return controller.controlWidth + Kirigami.Units.gridUnit * 7;
         }
-        return Math.max(300, controller.sliderWidth + Kirigami.Units.gridUnit * 5);
+        return Math.max(300, controller.controlWidth + Kirigami.Units.gridUnit * 5);
     }
     Layout.preferredHeight: Kirigami.Units.iconSizes.medium
 
@@ -62,8 +55,6 @@ Item {
             switch (compact.effectiveMode) {
             case compact.percentageMode:
                 return percentageComponent;
-            case compact.sliderMode:
-                return sliderComponent;
             case compact.controlsMode:
                 return controlsComponent;
             default:
@@ -117,36 +108,6 @@ Item {
             onClicked: compact.controller.expanded = !compact.controller.expanded
             PC3.ToolTip.text: i18n("Open KOpacity controls")
             PC3.ToolTip.visible: hovered
-        }
-    }
-
-    Component {
-        id: sliderComponent
-
-        Item {
-            PC3.Slider {
-                id: wideSlider
-
-                anchors.fill: parent
-                anchors.leftMargin: Kirigami.Units.smallSpacing
-                anchors.rightMargin: Kirigami.Units.smallSpacing
-                from: compact.controller.minimumOpacity
-                to: compact.controller.maximumOpacity
-                stepSize: 1
-                snapMode: PC3.Slider.SnapAlways
-                live: false
-                enabled: !compact.controller.commandPending
-                value: compact.controller.opacityPercent
-                Accessible.name: i18n("Window opacity")
-                PC3.ToolTip.text: i18n("%1% opacity", Math.round(wideSlider.value))
-                PC3.ToolTip.visible: wideSlider.hovered || wideSlider.pressed
-
-                onPressedChanged: function() {
-                    if (!wideSlider.pressed) {
-                        compact.controller.applyOpacity(wideSlider.value);
-                    }
-                }
-            }
         }
     }
 

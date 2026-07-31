@@ -15,11 +15,10 @@ selected KWin window categories.
   - menus and popups (disabled by default),
   - tooltips (disabled by default),
   - splash screens (disabled by default).
-- Five per-widget panel appearances:
+- Four per-widget panel appearances:
   - automatic,
   - icon,
   - percentage,
-  - wide slider,
   - full controls.
 - The standard popup is available from icon-based controls, while the
   Configure dialog also exposes the effect switch, slider, presets, and scope
@@ -83,7 +82,7 @@ the last widget instance or uninstalling the package.
 Opacity, enabled state, and transparency scope are global KWin settings shared
 by every KOpacity instance. Appearance and requested width are stored per
 widget, so a desktop instance can use full controls while a panel instance uses
-only the wide slider. The popup and Configure dialog use the same backend
+only a percentage button. The popup and Configure dialog use the same backend
 client, so operational controls report and modify the same live state.
 
 ## License

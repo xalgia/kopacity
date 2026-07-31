@@ -24,8 +24,8 @@ PlasmoidItem {
     readonly property int minimumOpacity: backend.minimumOpacity
     readonly property int maximumOpacity: backend.maximumOpacity
     readonly property var opacityPresets: backend.opacityPresets
-    readonly property int displayMode: Math.max(0, Math.min(4, Plasmoid.configuration.displayMode))
-    readonly property int sliderWidth: Math.max(160, Math.min(480, Plasmoid.configuration.sliderWidth))
+    readonly property int displayMode: normalizedDisplayMode(Plasmoid.configuration.displayMode)
+    readonly property int controlWidth: Math.max(160, Math.min(480, Plasmoid.configuration.sliderWidth))
     readonly property bool horizontalPanel: Plasmoid.formFactor === PlasmaCore.Types.Horizontal
     readonly property bool anyScopeEnabled: backend.anyScopeEnabled
     readonly property bool effectActive: backend.effectActive
@@ -66,7 +66,18 @@ PlasmoidItem {
     }
 
     function setDisplayMode(mode) {
-        Plasmoid.configuration.displayMode = Math.max(0, Math.min(4, Math.round(mode)));
+        Plasmoid.configuration.displayMode = normalizedDisplayMode(mode);
+    }
+
+    function normalizedDisplayMode(mode) {
+        var value = Math.round(Number(mode));
+        if (!Number.isFinite(value)) {
+            return 0;
+        }
+        if (value >= 3) {
+            return 3;
+        }
+        return Math.max(0, value);
     }
 
     onExpandedChanged: function() {
@@ -87,5 +98,12 @@ PlasmoidItem {
         id: backend
 
         initialCommand: "sync"
+    }
+
+    Component.onCompleted: {
+        var migratedMode = normalizedDisplayMode(Plasmoid.configuration.displayMode);
+        if (Plasmoid.configuration.displayMode !== migratedMode) {
+            Plasmoid.configuration.displayMode = migratedMode;
+        }
     }
 }
