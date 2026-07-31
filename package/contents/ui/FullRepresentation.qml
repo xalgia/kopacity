@@ -45,7 +45,7 @@ ColumnLayout {
         spacing: Kirigami.Units.smallSpacing
 
         PC3.ToolButton {
-            icon.name: "list-remove-symbolic"
+            text: "−"
             enabled: !panel.controller.commandPending
                 && panel.controller.opacityPercent > panel.controller.minimumOpacity
             Accessible.name: i18n("More transparent")
@@ -73,7 +73,7 @@ ColumnLayout {
         }
 
         PC3.ToolButton {
-            icon.name: "list-add-symbolic"
+            text: "+"
             enabled: !panel.controller.commandPending
                 && panel.controller.opacityPercent < panel.controller.maximumOpacity
             Accessible.name: i18n("More opaque")

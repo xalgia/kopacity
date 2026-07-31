@@ -141,8 +141,8 @@ PlasmoidItem {
         runControl("scope " + scope + " " + (enabled ? "on" : "off"));
     }
 
-    onExpandedChanged: {
-        if (expanded) {
+    onExpandedChanged: function() {
+        if (root.expanded) {
             refreshStatus();
         }
     }

@@ -180,7 +180,7 @@ Item {
                 Layout.preferredWidth: compact.controlExtent
                 Layout.maximumWidth: compact.controlExtent
                 Layout.fillHeight: true
-                icon.name: "list-remove-symbolic"
+                text: "−"
                 enabled: !compact.controller.commandPending
                     && compact.controller.opacityPercent > compact.controller.minimumOpacity
                 Accessible.name: i18n("More transparent")
@@ -212,7 +212,7 @@ Item {
                 Layout.preferredWidth: compact.controlExtent
                 Layout.maximumWidth: compact.controlExtent
                 Layout.fillHeight: true
-                icon.name: "list-add-symbolic"
+                text: "+"
                 enabled: !compact.controller.commandPending
                     && compact.controller.opacityPercent < compact.controller.maximumOpacity
                 Accessible.name: i18n("More opaque")
