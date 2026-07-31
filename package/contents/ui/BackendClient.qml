@@ -24,6 +24,7 @@ Item {
 
     readonly property int minimumOpacity: 50
     readonly property int maximumOpacity: 100
+    readonly property var opacityPresets: [50, 70, 85, 100]
     readonly property bool anyScopeEnabled: includeNormalWindows
         || includeDialogs
         || includePanels

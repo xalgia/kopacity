@@ -59,7 +59,7 @@ Kirigami.FormLayout {
         spacing: Kirigami.Units.smallSpacing
 
         Repeater {
-            model: [60, 75, 85, 100]
+            model: backend.opacityPresets
 
             Button {
                 required property int modelData

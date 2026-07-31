@@ -6,7 +6,7 @@ selected KWin window categories.
 ## Features
 
 - A 50–100% opacity slider with one-percent precision.
-- Presets at 60%, 75%, 85%, and 100%.
+- Presets at 50%, 70%, 85%, and 100%.
 - Global scope controls for:
   - application windows (enabled by default),
   - dialogs (enabled by default),
@@ -24,6 +24,7 @@ selected KWin window categories.
 - The standard popup is available from icon-based controls, while the
   Configure dialog also exposes the effect switch, slider, presets, and scope
   controls for slider-only layouts.
+- The popup includes an immediate per-widget appearance selector.
 - Width-aware fallbacks for narrow horizontal and vertical panels.
 - A self-contained KWin JavaScript backend; no hardcoded home-directory paths.
 - State reconciliation after KWin or Plasma restarts.

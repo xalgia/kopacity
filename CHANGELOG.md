@@ -12,6 +12,8 @@
 - Made the full-controls opacity icon open the standard widget popup.
 - Added the effect switch, opacity slider, presets, and scope controls to the
   Configure dialog using the shared live backend client.
+- Updated presets to 50%, 70%, 85%, and 100%, and added a widget-style selector
+  to the standard popup.
 - Limited the public slider to the safer 50–100% range.
 - Preserved the last translucent value when switching to full opacity.
 - Added backend reconciliation, rollback behavior, and automated controller

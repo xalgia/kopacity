@@ -45,6 +45,31 @@ ColumnLayout {
         Layout.fillWidth: true
         spacing: Kirigami.Units.smallSpacing
 
+        PC3.Label {
+            text: i18n("Widget style")
+        }
+
+        PC3.ComboBox {
+            Layout.fillWidth: true
+            model: [
+                i18n("Automatic"),
+                i18n("Icon"),
+                i18n("Percentage"),
+                i18n("Wide slider"),
+                i18n("Full controls")
+            ]
+            currentIndex: panel.controller.displayMode
+            Accessible.name: i18n("Widget style")
+            onActivated: function(index) {
+                panel.controller.setDisplayMode(index);
+            }
+        }
+    }
+
+    RowLayout {
+        Layout.fillWidth: true
+        spacing: Kirigami.Units.smallSpacing
+
         PC3.ToolButton {
             text: "−"
             enabled: !panel.controller.commandPending
@@ -97,7 +122,7 @@ ColumnLayout {
         spacing: Kirigami.Units.smallSpacing
 
         Repeater {
-            model: [60, 75, 85, 100]
+            model: panel.controller.opacityPresets
 
             PC3.Button {
                 required property int modelData

@@ -23,6 +23,7 @@ PlasmoidItem {
 
     readonly property int minimumOpacity: backend.minimumOpacity
     readonly property int maximumOpacity: backend.maximumOpacity
+    readonly property var opacityPresets: backend.opacityPresets
     readonly property int displayMode: Math.max(0, Math.min(4, Plasmoid.configuration.displayMode))
     readonly property int sliderWidth: Math.max(160, Math.min(480, Plasmoid.configuration.sliderWidth))
     readonly property bool horizontalPanel: Plasmoid.formFactor === PlasmaCore.Types.Horizontal
@@ -62,6 +63,10 @@ PlasmoidItem {
 
     function setScope(scope, enabled) {
         backend.setScope(scope, enabled);
+    }
+
+    function setDisplayMode(mode) {
+        Plasmoid.configuration.displayMode = Math.max(0, Math.min(4, Math.round(mode)));
     }
 
     onExpandedChanged: function() {
