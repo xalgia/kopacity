@@ -42,10 +42,10 @@ configured KOpacity value, then unloads itself.
 
 ## Window safety
 
-The backend handles normal application windows, dialogs, and docks as separate
-categories. It permanently ignores desktop windows, KWin internal windows,
-the lock screen, menus, notification surfaces, tooltips, applet popups, input
-methods, and similar transient windows.
+The backend handles normal application windows, dialogs, docks,
+notifications/OSDs, menus/popups, tooltips, and splash screens as separate
+categories. It permanently ignores desktop windows, KWin internal windows, the
+lock screen, critical notifications, and input methods.
 
 Restoration only changes a window when its current opacity matches KOpacity's
 configured value. This reduces interference with unrelated custom opacity

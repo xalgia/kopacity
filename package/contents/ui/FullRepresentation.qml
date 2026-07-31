@@ -12,6 +12,7 @@ ColumnLayout {
     Layout.minimumWidth: Kirigami.Units.gridUnit * 20
     Layout.preferredWidth: Kirigami.Units.gridUnit * 22
     Layout.minimumHeight: implicitHeight
+    Layout.preferredHeight: implicitHeight
     spacing: Kirigami.Units.smallSpacing
 
     RowLayout {
@@ -55,6 +56,8 @@ ColumnLayout {
         }
 
         PC3.Slider {
+            id: opacitySlider
+
             Layout.fillWidth: true
             from: panel.controller.minimumOpacity
             to: panel.controller.maximumOpacity
@@ -65,9 +68,9 @@ ColumnLayout {
                 && panel.controller.backendAvailable
             value: panel.controller.opacityPercent
             Accessible.name: i18n("Window opacity")
-            onPressedChanged: {
-                if (!pressed) {
-                    panel.controller.applyOpacity(value);
+            onPressedChanged: function() {
+                if (!opacitySlider.pressed) {
+                    panel.controller.applyOpacity(opacitySlider.value);
                 }
             }
         }
@@ -149,7 +152,50 @@ ColumnLayout {
 
     PC3.Label {
         Layout.fillWidth: true
-        text: i18n("The desktop, lock screen, menus, notifications, tooltips, and other transient surfaces always remain opaque.")
+        Layout.topMargin: Kirigami.Units.smallSpacing
+        text: i18n("Additional surfaces")
+        font.weight: Font.DemiBold
+    }
+
+    PC3.CheckBox {
+        Layout.fillWidth: true
+        text: i18n("Notifications and on-screen displays")
+        checked: panel.controller.includeNotifications
+        enabled: !panel.controller.commandPending
+            && panel.controller.backendAvailable
+        onToggled: panel.controller.setScope("notifications", checked)
+    }
+
+    PC3.CheckBox {
+        Layout.fillWidth: true
+        text: i18n("Menus and popups")
+        checked: panel.controller.includeMenus
+        enabled: !panel.controller.commandPending
+            && panel.controller.backendAvailable
+        onToggled: panel.controller.setScope("menus", checked)
+    }
+
+    PC3.CheckBox {
+        Layout.fillWidth: true
+        text: i18n("Tooltips")
+        checked: panel.controller.includeTooltips
+        enabled: !panel.controller.commandPending
+            && panel.controller.backendAvailable
+        onToggled: panel.controller.setScope("tooltips", checked)
+    }
+
+    PC3.CheckBox {
+        Layout.fillWidth: true
+        text: i18n("Splash screens")
+        checked: panel.controller.includeSplashScreens
+        enabled: !panel.controller.commandPending
+            && panel.controller.backendAvailable
+        onToggled: panel.controller.setScope("splashes", checked)
+    }
+
+    PC3.Label {
+        Layout.fillWidth: true
+        text: i18n("The desktop, lock screen, critical notifications, input methods, and KWin's own surfaces always remain opaque.")
         color: Kirigami.Theme.disabledTextColor
         font: Kirigami.Theme.smallFont
         wrapMode: Text.Wrap

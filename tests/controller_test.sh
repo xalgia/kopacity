@@ -93,6 +93,10 @@ assert_contains "$output" "effective=100"
 assert_contains "$output" "normal=true"
 assert_contains "$output" "dialogs=true"
 assert_contains "$output" "panels=false"
+assert_contains "$output" "notifications=false"
+assert_contains "$output" "menus=false"
+assert_contains "$output" "tooltips=false"
+assert_contains "$output" "splashes=false"
 
 output=$(run_controller set 60)
 assert_contains "$output" "enabled=true"
@@ -105,6 +109,22 @@ output=$(run_controller scope panels on)
 assert_contains "$output" "panels=true"
 assert_contains "$output" "loaded=true"
 assert_config IncludePanels true
+
+output=$(run_controller scope notifications on)
+assert_contains "$output" "notifications=true"
+assert_config IncludeNotifications true
+
+output=$(run_controller scope menus on)
+assert_contains "$output" "menus=true"
+assert_config IncludeMenus true
+
+output=$(run_controller scope tooltips on)
+assert_contains "$output" "tooltips=true"
+assert_config IncludeTooltips true
+
+output=$(run_controller scope splashes on)
+assert_contains "$output" "splashes=true"
+assert_config IncludeSplashScreens true
 
 output=$(run_controller off)
 assert_contains "$output" "enabled=false"
@@ -155,11 +175,19 @@ assert_contains "$output" "loaded=true"
 
 run_controller scope normal off >/dev/null
 run_controller scope dialogs off >/dev/null
-output=$(run_controller scope panels off)
+run_controller scope panels off >/dev/null
+run_controller scope notifications off >/dev/null
+run_controller scope menus off >/dev/null
+run_controller scope tooltips off >/dev/null
+output=$(run_controller scope splashes off)
 assert_contains "$output" "enabled=true"
 assert_contains "$output" "normal=false"
 assert_contains "$output" "dialogs=false"
 assert_contains "$output" "panels=false"
+assert_contains "$output" "notifications=false"
+assert_contains "$output" "menus=false"
+assert_contains "$output" "tooltips=false"
+assert_contains "$output" "splashes=false"
 assert_contains "$output" "loaded=false"
 
 output=$(run_controller scope normal on)

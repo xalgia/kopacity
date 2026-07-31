@@ -13,6 +13,10 @@ PlasmoidItem {
     property bool includeNormalWindows: true
     property bool includeDialogs: true
     property bool includePanels: false
+    property bool includeNotifications: false
+    property bool includeMenus: false
+    property bool includeTooltips: false
+    property bool includeSplashScreens: false
     property bool backendLoaded: false
     property bool backendAvailable: true
     property bool commandPending: false
@@ -24,7 +28,13 @@ PlasmoidItem {
     readonly property int displayMode: Math.max(0, Math.min(4, Plasmoid.configuration.displayMode))
     readonly property int sliderWidth: Math.max(160, Math.min(480, Plasmoid.configuration.sliderWidth))
     readonly property bool horizontalPanel: Plasmoid.formFactor === PlasmaCore.Types.Horizontal
-    readonly property bool anyScopeEnabled: includeNormalWindows || includeDialogs || includePanels
+    readonly property bool anyScopeEnabled: includeNormalWindows
+        || includeDialogs
+        || includePanels
+        || includeNotifications
+        || includeMenus
+        || includeTooltips
+        || includeSplashScreens
     readonly property bool effectActive: opacityEnabled
         && opacityPercent < maximumOpacity
         && anyScopeEnabled
@@ -76,12 +86,12 @@ PlasmoidItem {
     }
 
     function statusBool(output, key, fallback) {
-        var match = new RegExp("(?:^|\\\\s)" + key + "=(true|false)(?:\\\\s|$)").exec(output);
+        var match = new RegExp("(?:^|\\s)" + key + "=(true|false)(?:\\s|$)").exec(output);
         return match ? match[1] === "true" : fallback;
     }
 
     function statusNumber(output, key, fallback) {
-        var match = new RegExp("(?:^|\\\\s)" + key + "=([0-9]+)(?:\\\\s|$)").exec(output);
+        var match = new RegExp("(?:^|\\s)" + key + "=([0-9]+)(?:\\s|$)").exec(output);
         return match ? Number(match[1]) : fallback;
     }
 
@@ -92,6 +102,10 @@ PlasmoidItem {
         includeNormalWindows = statusBool(output, "normal", includeNormalWindows);
         includeDialogs = statusBool(output, "dialogs", includeDialogs);
         includePanels = statusBool(output, "panels", includePanels);
+        includeNotifications = statusBool(output, "notifications", includeNotifications);
+        includeMenus = statusBool(output, "menus", includeMenus);
+        includeTooltips = statusBool(output, "tooltips", includeTooltips);
+        includeSplashScreens = statusBool(output, "splashes", includeSplashScreens);
         backendLoaded = statusBool(output, "loaded", backendLoaded);
         backendAvailable = statusBool(output, "available", backendAvailable);
     }
@@ -137,6 +151,14 @@ PlasmoidItem {
             includeDialogs = enabled;
         } else if (scope === "panels") {
             includePanels = enabled;
+        } else if (scope === "notifications") {
+            includeNotifications = enabled;
+        } else if (scope === "menus") {
+            includeMenus = enabled;
+        } else if (scope === "tooltips") {
+            includeTooltips = enabled;
+        } else if (scope === "splashes") {
+            includeSplashScreens = enabled;
         }
         runControl("scope " + scope + " " + (enabled ? "on" : "off"));
     }

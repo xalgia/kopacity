@@ -10,18 +10,23 @@ selected KWin window categories.
 - Global scope controls for:
   - application windows (enabled by default),
   - dialogs (enabled by default),
-  - panels and docks (disabled by default).
+  - panels and docks (disabled by default),
+  - notifications and on-screen displays (disabled by default),
+  - menus and popups (disabled by default),
+  - tooltips (disabled by default),
+  - splash screens (disabled by default).
 - Five per-widget panel appearances:
   - automatic,
   - icon,
   - percentage,
   - wide slider,
   - full controls.
+- Width-aware fallbacks for narrow horizontal and vertical panels.
 - A self-contained KWin JavaScript backend; no hardcoded home-directory paths.
 - State reconciliation after KWin or Plasma restarts.
 - Rollback of configuration changes when the backend cannot be loaded.
 
-The desktop, lock screen, menus, notifications, tooltips, and other transient
+The desktop, lock screen, critical notifications, input methods, and KWin's own
 surfaces are always excluded.
 
 ## Requirements

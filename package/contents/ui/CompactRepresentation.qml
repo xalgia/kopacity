@@ -15,8 +15,11 @@ Item {
     readonly property int sliderMode: 3
     readonly property int controlsMode: 4
     readonly property int effectiveMode: {
-        if (!controller.horizontalPanel) {
+        if (controller.displayMode === sliderMode && width < Kirigami.Units.gridUnit * 5) {
             return iconMode;
+        }
+        if (controller.displayMode === controlsMode && width < Kirigami.Units.gridUnit * 10) {
+            return percentageMode;
         }
         if (controller.displayMode !== automaticMode) {
             return controller.displayMode;
@@ -122,6 +125,8 @@ Item {
 
         Item {
             PC3.Slider {
+                id: wideSlider
+
                 anchors.fill: parent
                 anchors.leftMargin: Kirigami.Units.smallSpacing
                 anchors.rightMargin: Kirigami.Units.smallSpacing
@@ -133,12 +138,12 @@ Item {
                 enabled: !compact.controller.commandPending
                 value: compact.controller.opacityPercent
                 Accessible.name: i18n("Window opacity")
-                PC3.ToolTip.text: i18n("%1% opacity", Math.round(value))
-                PC3.ToolTip.visible: hovered || pressed
+                PC3.ToolTip.text: i18n("%1% opacity", Math.round(wideSlider.value))
+                PC3.ToolTip.visible: wideSlider.hovered || wideSlider.pressed
 
-                onPressedChanged: {
-                    if (!pressed) {
-                        compact.controller.applyOpacity(value);
+                onPressedChanged: function() {
+                    if (!wideSlider.pressed) {
+                        compact.controller.applyOpacity(wideSlider.value);
                     }
                 }
             }
@@ -190,6 +195,8 @@ Item {
             }
 
             PC3.Slider {
+                id: controlsSlider
+
                 Layout.minimumWidth: Kirigami.Units.gridUnit * 4
                 Layout.fillWidth: true
                 from: compact.controller.minimumOpacity
@@ -200,9 +207,9 @@ Item {
                 enabled: !compact.controller.commandPending
                 value: compact.controller.opacityPercent
                 Accessible.name: i18n("Window opacity")
-                onPressedChanged: {
-                    if (!pressed) {
-                        compact.controller.applyOpacity(value);
+                onPressedChanged: function() {
+                    if (!controlsSlider.pressed) {
+                        compact.controller.applyOpacity(controlsSlider.value);
                     }
                 }
             }

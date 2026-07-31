@@ -2,6 +2,10 @@ const enabled = toBool(readConfig("Enabled", false));
 const includeNormalWindows = toBool(readConfig("IncludeNormalWindows", true));
 const includeDialogs = toBool(readConfig("IncludeDialogs", true));
 const includePanels = toBool(readConfig("IncludePanels", false));
+const includeNotifications = toBool(readConfig("IncludeNotifications", false));
+const includeMenus = toBool(readConfig("IncludeMenus", false));
+const includeTooltips = toBool(readConfig("IncludeTooltips", false));
+const includeSplashScreens = toBool(readConfig("IncludeSplashScreens", false));
 const configuredOpacity = clamp(toNumber(readConfig("Opacity", 75), 75), 50, 99) / 100;
 
 const ignoredResourceClasses = {
@@ -30,18 +34,12 @@ function resourceClass(window) {
     return String(window.resourceClass || "").toLowerCase();
 }
 
-function isUnsafeTransient(window) {
-    return window.splash
-        || window.notification
-        || window.criticalNotification
-        || window.onScreenDisplay
-        || window.tooltip
-        || window.popupMenu
+function isMenuOrPopup(window) {
+    return window.popupMenu
         || window.dropdownMenu
         || window.comboBox
         || window.appletPopup
-        || window.popupWindow
-        || window.inputMethod;
+        || window.popupWindow;
 }
 
 function categoryForWindow(window) {
@@ -49,9 +47,27 @@ function categoryForWindow(window) {
             || window.deleted
             || window.desktopWindow
             || window.internal
+            || window.criticalNotification
+            || window.inputMethod
             || ignoredResourceClasses[resourceClass(window)]
-            || isUnsafeTransient(window)) {
+    ) {
         return "";
+    }
+
+    if (window.notification || window.onScreenDisplay) {
+        return "notifications";
+    }
+
+    if (isMenuOrPopup(window)) {
+        return "menus";
+    }
+
+    if (window.tooltip) {
+        return "tooltips";
+    }
+
+    if (window.splash) {
+        return "splashes";
     }
 
     if (window.dock) {
@@ -77,6 +93,14 @@ function categoryIsIncluded(category) {
         return includeDialogs;
     case "panels":
         return includePanels;
+    case "notifications":
+        return includeNotifications;
+    case "menus":
+        return includeMenus;
+    case "tooltips":
+        return includeTooltips;
+    case "splashes":
+        return includeSplashScreens;
     default:
         return false;
     }
@@ -108,6 +132,12 @@ function applyToWindow(window) {
 
 workspace.windowList().forEach(applyToWindow);
 
-if (enabled && (includeNormalWindows || includeDialogs || includePanels)) {
+if (enabled && (includeNormalWindows
+        || includeDialogs
+        || includePanels
+        || includeNotifications
+        || includeMenus
+        || includeTooltips
+        || includeSplashScreens)) {
     workspace.windowAdded.connect(applyToWindow);
 }

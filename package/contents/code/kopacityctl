@@ -122,7 +122,11 @@ backend_should_run() {
 
     [ "$(read_bool IncludeNormalWindows true)" = "true" ] \
         || [ "$(read_bool IncludeDialogs true)" = "true" ] \
-        || [ "$(read_bool IncludePanels false)" = "true" ]
+        || [ "$(read_bool IncludePanels false)" = "true" ] \
+        || [ "$(read_bool IncludeNotifications false)" = "true" ] \
+        || [ "$(read_bool IncludeMenus false)" = "true" ] \
+        || [ "$(read_bool IncludeTooltips false)" = "true" ] \
+        || [ "$(read_bool IncludeSplashScreens false)" = "true" ]
 }
 
 require_runtime() {
@@ -193,6 +197,10 @@ snapshot_state() {
     old_normal=$(read_bool IncludeNormalWindows true)
     old_dialogs=$(read_bool IncludeDialogs true)
     old_panels=$(read_bool IncludePanels false)
+    old_notifications=$(read_bool IncludeNotifications false)
+    old_menus=$(read_bool IncludeMenus false)
+    old_tooltips=$(read_bool IncludeTooltips false)
+    old_splashes=$(read_bool IncludeSplashScreens false)
 }
 
 restore_snapshot() {
@@ -201,6 +209,10 @@ restore_snapshot() {
     write_config IncludeNormalWindows bool "$old_normal"
     write_config IncludeDialogs bool "$old_dialogs"
     write_config IncludePanels bool "$old_panels"
+    write_config IncludeNotifications bool "$old_notifications"
+    write_config IncludeMenus bool "$old_menus"
+    write_config IncludeTooltips bool "$old_tooltips"
+    write_config IncludeSplashScreens bool "$old_splashes"
 }
 
 commit_state() {
@@ -221,6 +233,10 @@ status() {
     normal=$(read_bool IncludeNormalWindows true)
     dialogs=$(read_bool IncludeDialogs true)
     panels=$(read_bool IncludePanels false)
+    notifications=$(read_bool IncludeNotifications false)
+    menus=$(read_bool IncludeMenus false)
+    tooltips=$(read_bool IncludeTooltips false)
+    splashes=$(read_bool IncludeSplashScreens false)
 
     if [ "$enabled" = "true" ] && [ "$opacity" -lt "$maximum_opacity" ]; then
         effective=$opacity
@@ -235,25 +251,27 @@ status() {
         loaded=false
     fi
 
-    printf 'enabled=%s opacity=%s effective=%s normal=%s dialogs=%s panels=%s loaded=%s available=%s\n' \
+    printf 'enabled=%s opacity=%s effective=%s normal=%s dialogs=%s panels=%s notifications=%s menus=%s tooltips=%s splashes=%s loaded=%s available=%s\n' \
         "$enabled" \
         "$opacity" \
         "$effective" \
         "$normal" \
         "$dialogs" \
         "$panels" \
+        "$notifications" \
+        "$menus" \
+        "$tooltips" \
+        "$splashes" \
         "$loaded" \
         "$available"
 }
 
 sync_backend() {
     if backend_should_run; then
-        if is_loaded; then
-            status
-        else
-            reconcile_backend
-            status
-        fi
+        # Reload even when already active so an upgraded package immediately
+        # replaces the in-memory KWin script with its current bundled version.
+        reconcile_backend
+        status
         return
     fi
 
@@ -276,6 +294,18 @@ set_scope() {
             ;;
         panels|docks)
             write_config IncludePanels bool "$value"
+            ;;
+        notifications|osd)
+            write_config IncludeNotifications bool "$value"
+            ;;
+        menus|popups)
+            write_config IncludeMenus bool "$value"
+            ;;
+        tooltips)
+            write_config IncludeTooltips bool "$value"
+            ;;
+        splashes|splash)
+            write_config IncludeSplashScreens bool "$value"
             ;;
         *)
             die "Unknown scope: $scope"
@@ -352,12 +382,12 @@ case "$command" in
         commit_state
         ;;
     scope)
-        [ "$#" -ge 3 ] || die "Usage: kopacityctl scope normal|dialogs|panels on|off"
+        [ "$#" -ge 3 ] || die "Usage: kopacityctl scope normal|dialogs|panels|notifications|menus|tooltips|splashes on|off"
         snapshot_state
         set_scope "$2" "$3"
         commit_state
         ;;
     *)
-        die "Usage: kopacityctl status|sync|set OPACITY|on|off|toggle|inc|dec|scope normal|dialogs|panels on|off"
+        die "Usage: kopacityctl status|sync|set OPACITY|on|off|toggle|inc|dec|scope CATEGORY on|off"
         ;;
 esac
