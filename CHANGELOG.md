@@ -9,6 +9,9 @@
 - Fixed Plasma configuration-page property injection so appearance modes save
   and apply correctly.
 - Fixed live status parsing and wide-layout behavior in vertical panels.
+- Made the full-controls opacity icon open the standard widget popup.
+- Added the effect switch, opacity slider, presets, and scope controls to the
+  Configure dialog using the shared live backend client.
 - Limited the public slider to the safer 50–100% range.
 - Preserved the last translucent value when switching to full opacity.
 - Added backend reconciliation, rollback behavior, and automated controller

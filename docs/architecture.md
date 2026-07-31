@@ -5,6 +5,8 @@
 Everything required at runtime is below `package/`:
 
 - `contents/ui/` contains the widget and configuration interfaces.
+- `contents/ui/BackendClient.qml` supplies one live state and command model to
+  both the widget and its Configure dialog.
 - `contents/code/kopacityctl` serializes changes, owns persistent state, and
   controls KWin through D-Bus.
 - `contents/code/kwin/main.js` runs inside KWin and applies opacity.

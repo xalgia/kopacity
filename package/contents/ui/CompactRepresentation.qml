@@ -161,13 +161,10 @@ Item {
                 Layout.preferredWidth: compact.controlExtent
                 Layout.maximumWidth: compact.controlExtent
                 Layout.fillHeight: true
-                checkable: true
-                checked: compact.controller.opacityEnabled
-                enabled: !compact.controller.commandPending
                 icon.name: compact.controller.commandPending ? "" : "edit-opacity"
-                opacity: checked ? 1 : 0.6
-                Accessible.name: checked ? i18n("Disable opacity") : i18n("Enable opacity")
-                onClicked: compact.controller.setEnabled(checked)
+                opacity: compact.controller.effectActive ? 1 : 0.6
+                Accessible.name: i18n("Open KOpacity controls")
+                onClicked: compact.controller.expanded = !compact.controller.expanded
                 PC3.ToolTip.text: Accessible.name
                 PC3.ToolTip.visible: hovered
 

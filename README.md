@@ -21,6 +21,9 @@ selected KWin window categories.
   - percentage,
   - wide slider,
   - full controls.
+- The standard popup is available from icon-based controls, while the
+  Configure dialog also exposes the effect switch, slider, presets, and scope
+  controls for slider-only layouts.
 - Width-aware fallbacks for narrow horizontal and vertical panels.
 - A self-contained KWin JavaScript backend; no hardcoded home-directory paths.
 - State reconciliation after KWin or Plasma restarts.
@@ -79,7 +82,8 @@ the last widget instance or uninstalling the package.
 Opacity, enabled state, and transparency scope are global KWin settings shared
 by every KOpacity instance. Appearance and requested width are stored per
 widget, so a desktop instance can use full controls while a panel instance uses
-only the wide slider.
+only the wide slider. The popup and Configure dialog use the same backend
+client, so operational controls report and modify the same live state.
 
 ## License
 
