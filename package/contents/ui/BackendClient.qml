@@ -194,12 +194,5 @@ Item {
         }
     }
 
-    Timer {
-        interval: 15000
-        repeat: true
-        running: !backend.commandPending
-        onTriggered: backend.refreshStatus()
-    }
-
     Component.onCompleted: runControl(initialCommand)
 }

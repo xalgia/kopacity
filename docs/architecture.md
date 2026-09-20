@@ -56,5 +56,6 @@ distinguished from a KOpacity-managed window.
 
 ## Multiple instances
 
-Effect state is global. Each instance refreshes state when opened and
-periodically while running. Appearance remains local to the instance.
+Effect state is global. Each instance refreshes state when opened. An instance
+that remains closed can show stale state after another instance changes the
+effect, until it is opened again. Appearance remains local to the instance.
