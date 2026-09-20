@@ -38,12 +38,18 @@ surfaces are always excluded.
 - KWin 6
 - `qdbus6`
 - `kreadconfig6` and `kwriteconfig6`
+- `kpackagetool6` for installation
 - a POSIX shell and `timeout`
 
 The widget is intentionally Plasma/KWin-specific. It is not a GNOME, Xfce, or
 Cinnamon extension.
 
 ## Development
+
+Checks additionally require `make`, Node.js (`node`), Python 3 (`python3`),
+`xmllint`, and Qt 6's `qmllint` available on `PATH`. Packaging also requires
+`zip` and `unzip`. These development tools are not needed just to install the
+widget from a clone.
 
 Run all static and controller tests:
 
@@ -60,9 +66,21 @@ make package
 The generated archive is placed in `dist/`. The archive contains the contents
 of `package/` at its root, as required by KPackage.
 
-## Local installation
+## Clone and install on another PC
 
-Install:
+Install the runtime requirements above on a KDE Plasma 6 PC, then clone with
+Git and enter the checkout:
+
+```sh
+git clone https://github.com/xalgia/kopacity.git
+cd kopacity
+```
+
+If the repository is private, authenticate with a GitHub account that has
+access. With the GitHub CLI, `gh auth login` followed by
+`gh repo clone xalgia/kopacity` is an alternative to `git clone`.
+
+Install directly from the checkout; no build or archive is required:
 
 ```sh
 kpackagetool6 --type Plasma/Applet --install package
@@ -76,6 +94,10 @@ kpackagetool6 --type Plasma/Applet --upgrade package
 
 Add **KOpacity** from Plasma's widget picker. Disable the effect before removing
 the last widget instance or uninstalling the package.
+
+For subsequent updates, run `git pull --ff-only` in the checkout and then the
+upgrade command above. Your opacity settings and widget layout are local to
+each PC and are not copied by cloning the repository.
 
 ## Configuration model
 
