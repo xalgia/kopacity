@@ -18,6 +18,9 @@ Validated on 2026-09-21 using Plasma/KWin 6.7.4 and Qt 6.11.2 on Wayland.
 - The installed widget starts in `plasmawindowed`; its newly created window
   inherits the active opacity and restores to 100% when the effect is disabled.
 - Removal after disabling leaves the isolated backend unloaded.
+- Anonymous public HTTPS clone, followed by passing checks and package build.
+- Public repository, issue tracker, and Sponsors page return HTTP 200 without
+  authentication; GitHub recognizes the repository's funding configuration.
 - The user's live KWin and Plasma configuration files remained byte-identical.
 - All 57 historical Git blobs were scanned for common credential patterns,
   private-key headers, private host paths, and private IPv4 addresses, with no

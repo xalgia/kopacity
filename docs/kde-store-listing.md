@@ -35,8 +35,8 @@ Disable the effect before removing the last widget or uninstalling KOpacity.
 
 ## Project and support links
 
-<!-- These are the intended public links. Make the repository public and
-verify both links without authentication before publishing the listing. -->
+<!-- Public source and issue-tracker links verified without authentication
+on 2026-09-21. -->
 
 Source code:
 https://github.com/xalgia/kopacity
@@ -73,7 +73,7 @@ https://github.com/sponsors/xalgia
 - [x] Add runtime requirements and accurately scoped compatibility information.
 - [x] Replace the license's placeholder attribution and include it in the package.
 - [ ] Approve AI-generated listing mockups; retain their disclosure labels.
-- [ ] Make the repository public and verify the project and issue-tracker links.
+- [x] Make the repository public and verify the project and issue-tracker links.
 - [ ] Publish the GitHub release and upload the KDE Store listing.
 - [ ] Verify discovery and installation through Get New Widgets.
 
