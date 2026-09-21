@@ -2,6 +2,9 @@
 
 ## 0.1.0
 
+- Included the MIT license in the installable package and added license checks.
+- Added an optional GitHub Sponsors link.
+- Removed periodic backend polling; widget state refreshes when opened.
 - Added a self-contained Plasma 6 and KWin implementation.
 - Added global application-window, dialog, and panel/dock scope controls.
 - Added opt-in notification/OSD, menu/popup, tooltip, and splash-screen scopes.

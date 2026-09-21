@@ -8,6 +8,10 @@ sh -n package/contents/code/kopacityctl
 node --check package/contents/code/kwin/main.js
 xmllint --noout package/contents/config/main.xml
 python3 -m json.tool package/metadata.json >/dev/null
+cmp -s LICENSE package/LICENSE || {
+    printf '%s\n' "The packaged license must match the repository license." >&2
+    exit 1
+}
 
 for qml_file in package/contents/config/config.qml package/contents/ui/*.qml; do
     qmllint "$qml_file"

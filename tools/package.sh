@@ -16,5 +16,6 @@ rm -f "$archive"
 
 unzip -t "$archive" >/dev/null
 unzip -Z1 "$archive" | grep -qx 'metadata.json'
+unzip -p "$archive" LICENSE | cmp -s LICENSE -
 
 printf '%s\n' "$archive"

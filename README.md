@@ -26,7 +26,7 @@ selected KWin window categories.
 - The popup includes an immediate per-widget appearance selector.
 - Width-aware fallbacks for narrow horizontal and vertical panels.
 - A self-contained KWin JavaScript backend; no hardcoded home-directory paths.
-- State reconciliation after KWin or Plasma restarts.
+- Backend reconciliation when the widget starts or an effect setting changes.
 - Rollback of configuration changes when the backend cannot be loaded.
 
 The desktop, lock screen, critical notifications, input methods, and KWin's own
@@ -43,6 +43,30 @@ surfaces are always excluded.
 
 The widget is intentionally Plasma/KWin-specific. It is not a GNOME, Xfce, or
 Cinnamon extension.
+
+Release 0.1.0 was validated on Plasma/KWin 6.7.4 with Wayland. Other Plasma 6
+versions and X11 have not been validated for this release.
+
+## Install a release
+
+Download the `.plasmoid` archive from:
+https://github.com/xalgia/kopacity/releases
+
+Install it with Plasma's **Install Widget From Local File** action, or:
+
+```sh
+kpackagetool6 --type Plasma/Applet --install kopacity-0.1.0.plasmoid
+```
+
+Use `--upgrade` instead of `--install` if KOpacity is already installed. Add
+**KOpacity** from the widget picker after installation.
+
+Before removing the last widget or uninstalling it, disable the effect. To
+uninstall the package:
+
+```sh
+kpackagetool6 --type Plasma/Applet --remove io.github.xalgia.kopacity
+```
 
 ## Development
 
@@ -76,10 +100,6 @@ git clone https://github.com/xalgia/kopacity.git
 cd kopacity
 ```
 
-If the repository is private, authenticate with a GitHub account that has
-access. With the GitHub CLI, `gh auth login` followed by
-`gh repo clone xalgia/kopacity` is an alternative to `git clone`.
-
 Install directly from the checkout; no build or archive is required:
 
 ```sh
@@ -106,6 +126,14 @@ by every KOpacity instance. Appearance and requested width are stored per
 widget, so a desktop instance can use full controls while a panel instance uses
 only a percentage button. The popup and Configure dialog use the same backend
 client, so operational controls report and modify the same live state.
+Other instances refresh when opened; a closed instance can display stale state.
+
+## Support development
+
+If you find KOpacity useful, consider supporting its development through GitHub
+Sponsors. Sponsorship is optional; KOpacity remains free to use.
+
+https://github.com/sponsors/xalgia
 
 ## License
 
